@@ -123,4 +123,34 @@ class AHP
         }
         return false;
     }
+
+    /**
+     *
+     */
+    public function getCriteria() {}
+
+    /**
+     *
+     */
+    public function getAlternatives() {}
+
+    /**
+     *
+     */
+    public function removeCriterion() {}
+
+    /**
+     *
+     */
+    public function removeAlternative() {}
+
+    /**
+     *
+     */
+    public function normalizePriorities() {}
+
+    /**
+     *
+     */
+    public function getResults() {}
 }
