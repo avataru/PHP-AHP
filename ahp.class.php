@@ -13,6 +13,7 @@
  * @link https://github.com/avataru/PHP-AHP
  * @author Mihai Zaharie <mihai@zaharie.ro>
  * @license http://creativecommons.org/licenses/by-nc-sa/3.0/   CC BY-NC-SA 3.0
+ *
  */
 
 class AHP
@@ -22,42 +23,21 @@ class AHP
      *
      * @var string
      */
-    protected $goal         = '';
+    public $goal         = '';
     
     /**
      * The criteria used of the analysis
      *
-     * Can contain multiple levels of criteria, for example:
-     *   $criteria = array(
-     *      'Criterion 1' => array(
-     *          'priority' => 0.30
-     *      ),
-     *      'Criterion 2' => array(
-     *          'priority' => 0.50,
-     *          'subcriteria' => array(
-     *              'Criterion 2.1' => array(
-     *                  'priority' => 0.15
-     *              ),
-     *              'Criterion 2.2' => array(
-     *                  'priority' => 0.35
-     *              )
-     *          )
-     *      ),
-     *      'Criterion 3' => array(
-     *          'priority' => 0.20
-     *      )
-     *   );
-     *
      * @var array
      */
-    protected $criteria     = array();
+    public $criteria     = array();
     
     /**
      * The alternatives that are analized
      *
      * @var array
      */
-    protected $alternatives = array();    
+    public $alternatives = array();    
 
     /**
      *
@@ -79,13 +59,33 @@ class AHP
     /**
      *
      */
-    public function setCriteria($criteria)
+    public function setCriteria($criteria, $parent = null)
     {
         if (is_array($criteria))
         {
-            $this->criteria = $criteria;
+            if ($parent != null)
+            {
+                if (isset($this->criteria[$parent]))
+                {
+                    $this->criteria[$parent]['subcriteria'] = array();
+                }
+            }
+            else
+            {     
+                $this->criteria = array();
+            }
+            
+            foreach ($criteria as $criterion)
+            {
+                if(!$this->addCriterion($criterion, $parent))
+                {
+                    return false;
+                }
+            }
+            
             return true;
         }
+        
         return false;
     }
 
@@ -94,9 +94,17 @@ class AHP
      */
     public function setAlternatives($alternatives)
     {
+        $this->alternatives = array();
+        
         if (is_array($alternatives))
         {
-            $this->alternatives = $alternatives;
+            foreach ($alternatives as $alternative)
+            {
+                if(!$this->addAlternative($alternative))
+                {
+                    return false;
+                }
+            }
             return true;
         }
         return false;
@@ -105,24 +113,78 @@ class AHP
     /**
      *
      */
-    public function addCriterion($criterion)
+    public function addCriterion($criterion, $parent = null)
     {
-        $this->criteria[$criterion] = 0;
+        if ($parent != null)
+        {
+            if (isset($this->criteria[$parent]))
+            {
+                $this->criteria[$parent]['subcriteria'][$criterion]['priorities'] = array(
+                    'local' => 0,
+                    'global' => 0
+                );
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            $this->criteria[$criterion]['priorities'] = array(
+                'local' => 0,
+                'global' => 0
+            );
+        }
+        
         return true;
     }
 
     /**
      *
      */
-    public function addAlternative($alternative, $values)
+    public function addAlternative($alternative)
     {
-        if (is_array($values))
-        {
-            $this->alternatives[$alternative] = $values;
-            return true;
-        }
-        return false;
+        $this->alternatives[$alternative] = array();
+        return true;
     }
+
+    /**
+     * @TODO Show priorities
+     */
+    public function getHierarchy()
+    {
+        $hierarchy = '';
+        
+        if ($this->goal != '')
+        {
+            $hierarchy .= $this->goal;
+        }
+        
+        if (count($this->criteria) > 0)
+        {
+            foreach (array_keys($this->criteria) as $criterion)
+            {
+                $hierarchy .= "\n|\n";
+                $hierarchy .= ($criterion == end(array_keys($this->criteria))) ? '\\' : '|';
+                $hierarchy .= '---- ' . $criterion;
+                
+                if (count($this->criteria[$criterion]['subcriteria']) > 0)
+                {
+                    foreach (array_keys($this->criteria[$criterion]['subcriteria']) as $subcriterion)
+                    {
+                        $hierarchy .= ($criterion == end(array_keys($this->criteria))) ? "\n      |\n      " : "\n|     |\n|     ";
+                        $hierarchy .= ($subcriterion == end(array_keys($this->criteria[$criterion]['subcriteria']))) ? '\\' : '|';
+                        $hierarchy .= '---- ' . $subcriterion;
+                    }
+                }
+            }
+        }
+        
+        return $hierarchy;
+    }
+    
+    /*******/
 
     /**
      *
@@ -143,11 +205,6 @@ class AHP
      *
      */
     public function removeAlternative() {}
-
-    /**
-     *
-     */
-    public function normalizePriorities() {}
 
     /**
      *
