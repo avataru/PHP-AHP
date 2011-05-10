@@ -12,4 +12,5 @@ $ahp->setAlternatives(array('Accord Sedan', 'Accord Hybrid', 'Pilot SUV', 'CR-V 
 // echo '<br />Criteria: <pre>'; print_r($ahp->criteria); echo '</pre><br />';
 // echo '<br />Alternatives: <pre>'; print_r($ahp->alternatives); echo '</pre><br />';
 
-echo '<pre>'; echo $ahp->getHierarchy(); echo '</pre>';
+// echo '<pre>'; echo $ahp->getHierarchy(); echo '</pre>';
+echo '<pre>'; print_r($ahp->getPriorityMatrix('Cost')); echo '</pre>';

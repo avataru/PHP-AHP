@@ -1,2 +1,17 @@
 Analytic Hierarchy Process
 http://en.wikipedia.org/wiki/Analytic_hierarchy_process
+
+Limitations:
+
+The criteria can only have 2 levels but this should be enough for most cases.
+
+How it should work:
+
+1. New class instance / Set the goal
+2. Set the criteria
+3. Set the alternatives
+4. Get the priority matrix
+5. Update/set the priorities based on 1-9 values
+6. Set the type of values for each criteria (eg. higher is better or lower is better)
+7. Set the values for the alternatives (maybe put step 3. just before this one...)
+8. Get the results

@@ -163,18 +163,21 @@ class AHP
         
         if (count($this->criteria) > 0)
         {
-            foreach (array_keys($this->criteria) as $criterion)
+            $criteria = array_keys($this->criteria);
+            foreach ($criteria as $criterion)
             {
                 $hierarchy .= "\n|\n";
-                $hierarchy .= ($criterion == end(array_keys($this->criteria))) ? '\\' : '|';
+                $hierarchy .= ($criterion == end($criteria)) ? '\\' : '|';
                 $hierarchy .= '---- ' . $criterion;
                 
-                if (count($this->criteria[$criterion]['subcriteria']) > 0)
+                $subcriteriaData = &$this->criteria[$criterion]['subcriteria'];
+                if (isset($subcriteriaData) && count($subcriteriaData) > 0)
                 {
-                    foreach (array_keys($this->criteria[$criterion]['subcriteria']) as $subcriterion)
+                    $subcriteria = array_keys($subcriteriaData);
+                    foreach ($subcriteria as $subcriterion)
                     {
-                        $hierarchy .= ($criterion == end(array_keys($this->criteria))) ? "\n      |\n      " : "\n|     |\n|     ";
-                        $hierarchy .= ($subcriterion == end(array_keys($this->criteria[$criterion]['subcriteria']))) ? '\\' : '|';
+                        $hierarchy .= ($criterion == end($criteria)) ? "\n      |\n      " : "\n|     |\n|     ";
+                        $hierarchy .= ($subcriterion == end($subcriteria)) ? '\\' : '|';
                         $hierarchy .= '---- ' . $subcriterion;
                     }
                 }
@@ -182,6 +185,32 @@ class AHP
         }
         
         return $hierarchy;
+    }
+    
+    /**
+     *
+     */
+    public function getPriorityMatrix($criterion = null)
+    {
+        $matrix = array();
+        
+        $criteria = ($criterion != null) ? array_keys($this->criteria[$criterion]['subcriteria']) : array_keys($this->criteria);
+        
+        foreach ($criteria as $criterionRow)
+        {
+            foreach ($criteria as $criterionColumn)
+            {
+                if ($criterionRow != $criterionColumn)
+                {
+                    if (!isset($matrix[$criterionColumn][$criterionRow]))
+                    {
+                        $matrix[$criterionRow][$criterionColumn] = 0;
+                    }
+                }
+            }
+        }
+        
+        return $matrix;
     }
     
     /*******/
